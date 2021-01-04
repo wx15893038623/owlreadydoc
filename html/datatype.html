@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datatypes &#8212; Owlready2 0.25 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Class constructs, restrictions and logical operators" href="restriction.html" />
+    <link rel="prev" title="Properties" href="properties.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="restriction.html" title="Class constructs, restrictions and logical operators"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="properties.html" title="Properties"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Owlready2 0.25 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Datatypes</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="datatypes">
+<h1>Datatypes<a class="headerlink" href="#datatypes" title="Permalink to this headline">¶</a></h1>
+<p>Owlready automatically recognizes and translates basic datatypes to Python, such as string, int, float, etc.</p>
+<div class="section" id="creating-custom-datatypes">
+<h2>Creating custom datatypes<a class="headerlink" href="#creating-custom-datatypes" title="Permalink to this headline">¶</a></h2>
+<p>The declare_datatype() global function allows to declare a new datatype. It takes 4 arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>datatype: the Python datatype (for example, a Python type or class)</p></li>
+<li><p>iri: the IRI used to represent the datatype in ontologies</p></li>
+<li><p>parser: a function that takes a serialized string and returns the corresponding datatype</p></li>
+<li><p>unparser: a function that takes a datatype and returns its serialization in a string</p></li>
+</ul>
+</div></blockquote>
+<p>The function returns the storid associated to the datatype.</p>
+<p><strong>Warning:</strong> The datatype must be declared <strong>BEFORE</strong> loading any ontology that uses it.</p>
+<p>Here is an example for adding support for the XSD “hexBinary” datatype:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Hex</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="n">Hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">unparser</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="n">h</span> <span class="o">=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">... </span>  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="s2">&quot;0</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">h</span>
+<span class="gp">... </span>  <span class="k">return</span> <span class="n">h</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">declare_datatype</span><span class="p">(</span><span class="n">Hex</span><span class="p">,</span> <span class="s2">&quot;http://www.w3.org/2001/XMLSchema#hexBinary&quot;</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">unparser</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The datatype can then be used as any others:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">onto</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">get_ontology</span><span class="p">(</span><span class="s2">&quot;http://www.test.org/t.owl&quot;</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">onto</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">class</span> <span class="nc">p</span><span class="p">(</span><span class="n">Thing</span> <span class="o">&gt;&gt;</span> <span class="n">Hex</span><span class="p">):</span> <span class="k">pass</span>
+
+<span class="gp">... </span>  <span class="k">class</span> <span class="nc">C</span><span class="p">(</span><span class="n">Thing</span><span class="p">):</span> <span class="k">pass</span>
+
+<span class="gp">... </span>  <span class="n">c1</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+<span class="gp">... </span>  <span class="n">c1</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hex</span><span class="p">(</span><span class="mi">14</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Datatypes</a><ul>
+<li><a class="reference internal" href="#creating-custom-datatypes">Creating custom datatypes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="properties.html"
+                        title="previous chapter">Properties</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="restriction.html"
+                        title="next chapter">Class constructs, restrictions and logical operators</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/datatype.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="restriction.html" title="Class constructs, restrictions and logical operators"
+             >next</a></li>
+        <li class="right" >
+          <a href="properties.html" title="Properties"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Owlready2 0.25 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Datatypes</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2014-2019, Jean-Baptiste LAMY.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>
